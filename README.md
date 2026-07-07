@@ -13,6 +13,8 @@ Question -> embed -> similarity search (ChromaDB, local) -> top-K passages
          -> Claude (Haiku/Sonnet) -> grounded answer + citations
 ```
 
+![Screenshot of the web UI: knowledge index sidebar, a grounded answer with citations, and live cost tracking](docs/screenshot.png)
+
 ## Real-world use case
 
 Tier-1 IT helpdesks and MSPs re-answer the same handful of questions
