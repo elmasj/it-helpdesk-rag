@@ -1,0 +1,23 @@
+# --- Embeddings (local, free, CPU-only) ---
+sentence-transformers>=2.7.0
+
+# --- Vector store (local, free) ---
+chromadb>=0.5.0
+
+# --- Claude API (generation step only) ---
+anthropic>=0.39.0
+
+# --- Data acquisition (parsing Markdown frontmatter) ---
+pyyaml>=6.0.0
+
+# --- Config ---
+python-dotenv>=1.0.0
+
+# --- Web GUI ---
+flask>=3.0.0
+markdown>=3.6
+bleach>=6.1.0
+
+# Note: adding an IT support ticket dataset later (see README) would mean
+# adding pandas (CSV cleaning) and/or requests back here -- not needed for
+# the current Microsoft Learn docs-only pipeline.

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IT Helpdesk Knowledge Assistant</title>
+  <script>
+    // Set the theme before the stylesheet paints anything, so there's no
+    // flash of the wrong theme on load. Falls back to the OS-level
+    // light/dark preference if the user hasn't chosen one here yet.
+    (function () {
+      var saved = localStorage.getItem("theme");
+      var theme = saved || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span>Knowledge Index</span>
+        <button class="sidebar-close" id="sidebar-close" type="button" aria-label="Close index">&times;</button>
+      </div>
+      <p class="sidebar-sub">{{ topic_index|sum(attribute="total") }} indexed passages across {{ topic_index|length }} products</p>
+      <nav class="sidebar-nav">
+        {% for product in topic_index %}
+        <div class="sidebar-group">
+          <div class="sidebar-group-title">
+            <span>{{ product.label }}</span>
+            <span class="count-badge">{{ product.total }}</span>
+          </div>
+          <ul>
+            {% for topic in product.topics %}
+            <li>
+              <button class="sidebar-topic" data-topic="{{ topic.label }}" data-product="{{ product.label }}">
+                <span>{{ topic.label }}</span>
+                <span class="count-badge small">{{ topic.count }}</span>
+              </button>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      </nav>
+    </aside>
+
+    <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-label="Show knowledge index" title="Knowledge index">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="brand-mark">IT</div>
+        <div class="brand-text">
+          <h1>IT Helpdesk Knowledge Assistant</h1>
+          <p>Grounded answers from Microsoft Learn docs, with citations</p>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <div class="model-badge" title="Set via CLAUDE_MODEL in .env">
+          <span class="dot"></span>{{ model }}
+        </div>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="budget" title="Estimated spend across all sessions">
+          <div class="budget-label">
+            <span id="spend-value">${{ "%.4f"|format(total_spend) }}</span>
+            <span class="budget-of">/ ${{ "%.0f"|format(budget_limit) }} budget</span>
+          </div>
+          <div class="budget-bar">
+            <div id="budget-fill" class="budget-fill"
+                 style="width: {{ (total_spend / budget_limit * 100) if budget_limit else 0 }}%"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="chat" id="chat">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">&#128187;</div>
+        <h2>Ask an IT support question</h2>
+        <p>Answers are grounded only in the indexed Microsoft Learn documentation below &mdash;
+           every response cites exactly which passage it came from.</p>
+        <div class="example-chips">
+          <button class="chip" data-question="How do I edit the Windows registry from a command line or script?">Edit the registry from a script</button>
+          <button class="chip" data-question="A user's laptop won't wake up from sleep or hibernation, how do I troubleshoot it?">Laptop won't wake from sleep</button>
+          <button class="chip" data-question="How do I block a specific app on managed Android devices in Intune?">Block an app in Intune</button>
+          <button class="chip" data-question="What is Conditional Access in Microsoft Entra ID?">What is Conditional Access?</button>
+        </div>
+      </div>
+    </main>
+
+    <form class="composer" id="composer">
+      <textarea
+        id="question-input"
+        placeholder="Ask an IT support question..."
+        rows="1"
+        autofocus
+      ></textarea>
+      <button type="submit" id="send-button" aria-label="Send">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 2 11 13" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M22 2 15 22l-4-9-9-4 20-7Z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
